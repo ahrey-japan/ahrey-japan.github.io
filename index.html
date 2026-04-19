@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AH-REH JAPAN | Bangkok Karaoke & Lounge</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Orbitron:wght@400;700;900&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--pink:#ff2d78;--cyan:#00f5ff;--gold:#ffd700;--purple:#bf00ff;--dark:#04040a;--card:rgba(255,255,255,0.05);--text:#e8e8ff;--dim:#8888aa;}
+html,body{background:var(--dark);color:var(--text);font-family:'Zen Kaku Gothic New','Noto Sans Thai',sans-serif;font-weight:400;min-height:100vh;overflow-x:hidden;font-size:16px}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.page{display:none;position:relative;z-index:1;min-height:100vh}
+.page.active{display:block}
+.app-header{position:sticky;top:0;z-index:100;background:rgba(4,4,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,245,255,0.1);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.header-logo{font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:0.12em;color:#fff;text-shadow:0 0 15px var(--cyan)}
+.header-logo span{color:var(--pink);text-shadow:0 0 15px var(--pink)}
+.back-btn{padding:8px 16px;border:1px solid rgba(0,245,255,0.3);border-radius:20px;background:transparent;color:var(--cyan);font-size:13px;cursor:pointer;font-family:'Orbitron',monospace}
+#page-top{padding:0}
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;text-align:center}
+.hero-eye{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.4em;color:var(--cyan);margin-bottom:16px;animation:fadeUp 0.8s ease 0.2s both}
+.hero-title{font-weight:900;font-size:clamp(48px,12vw,96px);line-height:1;margin-bottom:8px;animation:fadeUp 0.8s ease 0.4s both}
+.hero-title .t1{display:block;color:#fff;text-shadow:0 0 30px rgba(255,255,255,0.4)}
+.hero-title .t2{display:block;color:var(--pink);text-shadow:0 0 30px var(--pink),0 0 60px var(--pink)}
+.hero-sub{font-family:'Orbitron',monospace;font-size:clamp(10px,2.5vw,14px);letter-spacing:0.3em;color:var(--gold);margin-bottom:48px;text-shadow:0 0 12px var(--gold);animation:fadeUp 0.8s ease 0.6s both}
+.promo-btn{display:block;width:100%;max-width:400px;background:linear-gradient(135deg,rgba(255,45,120,0.2),rgba(191,0,255,0.2));border:2px solid var(--pink);border-radius:16px;padding:20px 24px;margin-bottom:20px;cursor:pointer;position:relative;overflow:hidden;animation:fadeUp 0.8s ease 0.8s both;transition:transform 0.15s,box-shadow 0.2s}
+.promo-btn:active{transform:scale(0.97)}
+.promo-btn:hover{box-shadow:0 0 40px rgba(255,45,120,0.4);transform:translateY(-2px)}
+.promo-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,45,120,0.1),transparent);animation:spin 3s linear infinite}
+.promo-label{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.3em;color:var(--pink);margin-bottom:8px;position:relative}
+.promo-main{font-size:clamp(20px,5vw,30px);font-weight:900;color:#fff;position:relative;line-height:1.2}
+.promo-main em{color:var(--pink);font-style:normal;text-shadow:0 0 15px var(--pink)}
+.promo-note{font-size:11px;color:var(--dim);margin-top:6px;position:relative}
+.promo-arrow{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:24px;color:var(--pink);z-index:1}
+.menu-btns{display:flex;flex-direction:column;gap:12px;width:100%;max-width:400px;animation:fadeUp 0.8s ease 1s both}
+.menu-btn{display:flex;align-items:center;gap:16px;padding:18px 20px;background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.menu-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)}
+.menu-btn:active{transform:scale(0.97);background:rgba(255,255,255,0.08)}
+.menu-btn-icon{font-size:24px;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-btn-text{flex:1;text-align:left}
+.menu-btn-jp{font-weight:700;font-size:15px;color:#fff}
+.menu-btn-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.menu-btn-arrow{color:var(--dim);font-size:18px}
+.menu-btn.staff .menu-btn-icon{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3)}
+.menu-btn.shift .menu-btn-icon{background:rgba(0,245,255,0.1);border-color:rgba(0,245,255,0.3)}
+.menu-btn.rank .menu-btn-icon{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3)}
+.page-inner{padding:20px}
+.page-title-block{margin-bottom:24px}
+.page-title{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:0.3em;color:var(--cyan);margin-bottom:6px}
+.page-heading{font-weight:900;font-size:clamp(24px,6vw,36px);color:#fff}
+.neon-line{width:48px;height:2px;background:linear-gradient(90deg,var(--pink),var(--cyan));margin-top:10px;border-radius:2px}
+.spinner-wrap{display:flex;align-items:center;justify-content:center;padding:60px;flex-direction:column;gap:12px;color:var(--dim);font-size:13px}
+.spinner-wrap::before{content:'';width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,245,255,0.2);border-top-color:var(--cyan);animation:spin 0.8s linear infinite;display:block}
+.booking-form{background:rgba(255,255,255,0.05);border:1px solid rgba(0,245,255,0.15);border-radius:20px;padding:24px 20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:10px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase}
+input,select,textarea{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 14px;color:#fff;font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;width:100%}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238888aa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:rgba(255,255,255,0.06);padding-right:36px;cursor:pointer}
+select option{background:#0d0d24;color:#e8e8ff}
+textarea{resize:none;height:72px}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);background:rgba(0,245,255,0.05)}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.2)}
+.btn-submit{width:100%;padding:16px;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;border-radius:12px;color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:0.15em;cursor:pointer;margin-top:8px;box-shadow:0 4px 24px rgba(255,45,120,0.35);transition:transform 0.15s,box-shadow 0.2s}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,45,120,0.55)}
+.btn-submit:active{transform:scale(0.97)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.staff-card{background:var(--card);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.staff-card:active{transform:scale(0.97)}
+.staff-card:hover{border-color:var(--pink);box-shadow:0 4px 20px rgba(255,45,120,0.2)}
+.staff-photo-wrap{width:100%;aspect-ratio:3/4;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,45,120,0.2),rgba(191,0,255,0.2));display:flex;align-items:center;justify-content:center;font-size:40px;color:rgba(255,255,255,0.3)}
+.staff-photo-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
+.staff-shift-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);border:1px solid rgba(0,245,255,0.3);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--cyan);white-space:nowrap;backdrop-filter:blur(4px)}
+.staff-info{padding:10px 12px 12px}
+.staff-name{font-weight:700;font-size:15px;color:#fff;margin-bottom:4px}
+.staff-levels{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px}
+.lv-badge{font-size:11px;padding:4px 10px;border-radius:8px;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700}
+.lv-badge.jp{background:rgba(255,45,120,0.25);border:1px solid rgba(255,45,120,0.6);color:#fff;text-shadow:0 0 6px var(--pink)}
+.lv-badge.en{background:rgba(0,245,255,0.15);border:1px solid rgba(0,245,255,0.5);color:#fff;text-shadow:0 0 6px var(--cyan)}
+.staff-tag{font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;color:var(--gold);text-shadow:0 0 8px rgba(255,215,0,0.5)}
+.staff-detail-photo{width:100%;max-height:500px;object-fit:contain;background:#000;border-radius:16px;margin-bottom:20px;display:block}
+.staff-detail-name{font-weight:900;font-size:34px;color:#fff;margin-bottom:8px;text-shadow:0 0 20px rgba(255,45,120,0.3)}
+.staff-detail-levels{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.staff-detail-lv{font-size:11px;padding:4px 12px;border-radius:10px;font-family:'Orbitron',monospace;font-weight:700}
+.staff-detail-lv.jp{background:rgba(255,45,120,0.15);border:1px solid rgba(255,45,120,0.3);color:var(--pink)}
+.staff-detail-lv.en{background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.25);color:var(--cyan)}
+.shift-month-label-staff{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:12px}
+.shift-chips-on{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.shift-chip-on{min-width:40px;height:40px;padding:0 8px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:var(--gold)}
+.shift-chip-today{background:rgba(255,45,120,0.2);border:2px solid var(--pink);color:var(--pink)}
+.staff-book-btn{display:block;width:100%;padding:18px;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;border-radius:14px;color:#fff;font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:0.15em;cursor:pointer;box-shadow:0 4px 30px rgba(255,45,120,0.4);transition:transform 0.15s,box-shadow 0.2s;margin-top:24px;text-align:center}
+.staff-book-btn:active{transform:scale(0.97)}
+.staff-book-btn:hover{box-shadow:0 8px 40px rgba(255,45,120,0.6);transform:translateY(-2px)}
+.no-shift-msg{padding:20px;text-align:center;color:var(--dim);font-size:13px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06)}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px}
+.month-btn{width:36px;height:36px;border:1px solid rgba(0,245,255,0.3);border-radius:50%;background:transparent;color:var(--cyan);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.month-label{font-size:14px;color:var(--text);min-width:160px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.cal-head{text-align:center;padding:6px 0;font-size:11px;color:var(--dim)}
+.cal-day{border-radius:8px;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 2px;min-height:48px}
+.cal-day.empty{background:transparent}
+.cal-num{font-size:13px;font-weight:600}
+.cal-cnt{font-size:10px;margin-top:2px;color:var(--dim)}
+.cal-ok{background:rgba(0,245,255,0.08);border-color:rgba(0,245,255,0.25)}
+.cal-ok .cal-num{color:var(--cyan)}
+.cal-under{background:rgba(255,215,0,0.06);border-color:rgba(255,215,0,0.2)}
+.cal-under .cal-num{color:var(--gold)}
+.cal-nodata .cal-num{color:rgba(255,255,255,0.2)}
+.cal-today{outline:2px solid var(--pink);outline-offset:1px}
+.rank-bg{position:relative;overflow:hidden;padding-bottom:40px}
+.rank-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(255,215,0,0.08),transparent);pointer-events:none}
+.rank-hero{text-align:center;padding:32px 20px 20px;position:relative}
+.rank-fire{font-size:56px;display:block;filter:drop-shadow(0 0 30px rgba(255,215,0,0.8));animation:fireGlow 2s ease-in-out infinite}
+.rank-title-main{font-family:'Orbitron',monospace;font-size:clamp(22px,6vw,32px);font-weight:900;color:var(--gold);text-shadow:0 0 30px var(--gold),0 0 60px rgba(255,215,0,0.5);letter-spacing:0.1em;margin:8px 0 4px}
+.rank-title-sub{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.4em;color:rgba(255,215,0,0.5)}
+.rank-month-badge{display:inline-block;margin-top:12px;padding:6px 20px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);border-radius:20px;font-size:12px;color:var(--gold)}
+.top3-wrap{padding:0 16px 8px;display:flex;flex-direction:column;gap:0}
+.top3-card{position:relative;border-radius:20px;overflow:hidden;margin-bottom:12px;transition:transform 0.2s}
+.top3-card:active{transform:scale(0.98)}
+.top3-card.rank1{background:linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,165,0,0.08));border:2px solid rgba(255,215,0,0.5);box-shadow:0 0 40px rgba(255,215,0,0.15)}
+.top3-card.rank2{background:linear-gradient(135deg,rgba(192,192,192,0.12),rgba(160,160,160,0.05));border:1px solid rgba(192,192,192,0.35)}
+.top3-card.rank3{background:linear-gradient(135deg,rgba(205,127,50,0.12),rgba(180,100,30,0.05));border:1px solid rgba(205,127,50,0.35)}
+.top3-inner{display:flex;align-items:center;gap:16px;padding:20px 22px}
+.top3-name{font-weight:900;font-size:20px;color:#fff;margin-bottom:4px}
+.rank1 .top3-name{text-shadow:0 0 15px rgba(255,215,0,0.4)}
+.top3-score-wrap{text-align:right;flex-shrink:0}
+.top3-score{font-family:'Orbitron',monospace;font-size:clamp(22px,5vw,30px);font-weight:900;line-height:1}
+.rank1 .top3-score{color:var(--gold);text-shadow:0 0 15px var(--gold)}
+.rank2 .top3-score{color:#c0c0c0}
+.rank3 .top3-score{color:#cd7f32}
+.top3-score-lbl{font-size:10px;color:var(--dim);margin-top:2px}
+.top3-shine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,0.04),transparent);animation:shine 3s ease-in-out infinite}
+.rank1 .top3-shine{animation-delay:0s}.rank2 .top3-shine{animation-delay:1s}.rank3 .top3-shine{animation-delay:2s}
+.rank-rest-title{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.3em;color:var(--dim);padding:4px 16px 12px;text-align:center}
+.rank-rest-list{padding:0 16px}
+.rank-rest-row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;border-radius:14px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.025);position:relative;overflow:hidden}
+.rank-rest-bar{position:absolute;left:0;top:0;bottom:0;border-radius:14px 0 0 14px;opacity:0.15}
+.rank-rest-num{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:rgba(255,255,255,0.25);min-width:26px;text-align:center;position:relative}
+.rank-rest-name{font-weight:700;font-size:15px;color:#fff;flex:1;position:relative}
+.rank-rest-right{text-align:right;position:relative}
+.rank-rest-score{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--pink)}
+.rank-rest-pt{font-size:10px;color:var(--dim)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(0,245,255,0.1);border:1px solid var(--cyan);border-radius:12px;padding:14px 24px;z-index:999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-width:320px;width:90%;text-align:center;backdrop-filter:blur(20px)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-color:var(--pink);background:rgba(255,45,120,0.1)}
+.toast-title{font-weight:700;color:var(--cyan);margin-bottom:3px;font-size:14px}
+.toast.error .toast-title{color:var(--pink)}
+.toast-body{font-size:12px;color:var(--dim)}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp 1s ease 2s both}
+.scroll-hint span{font-size:9px;letter-spacing:0.3em;color:var(--dim)}
+.scroll-mouse{width:20px;height:32px;border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;display:flex;justify-content:center;padding-top:5px}
+.scroll-dot{width:3px;height:5px;background:var(--cyan);border-radius:2px;animation:scrollBounce 1.5s ease-in-out infinite}
+.info-strip{background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:20px;text-align:center;font-size:12px;color:var(--dim);line-height:2}
+.info-strip strong{color:var(--gold)}
+.save-img-btn{display:block;width:calc(100% - 28px);margin:0 14px 20px;padding:16px;background:linear-gradient(135deg,rgba(255,45,120,0.2),rgba(191,0,255,0.2));border:1.5px solid rgba(255,45,120,0.6);border-radius:14px;color:#fff;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-align:center;transition:all 0.2s;-webkit-appearance:none}
+.save-img-btn:active{transform:scale(0.97);background:rgba(255,45,120,0.35)}
+.save-img-btn.loading{opacity:0.6;cursor:not-allowed}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scrollBounce{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(7px);opacity:0.3}}
+@keyframes fireGlow{0%,100%{transform:scale(1);filter:drop-shadow(0 0 20px rgba(255,215,0,0.6))}50%{transform:scale(1.08);filter:drop-shadow(0 0 40px rgba(255,215,0,1))}}
+@keyframes shine{0%{left:-100%}40%,100%{left:150%}}
+.save-img-btn{display:block;width:calc(100% - 28px);margin:0 14px 20px;padding:16px;background:linear-gradient(135deg,rgba(255,45,120,0.2),rgba(191,0,255,0.2));border:1.5px solid rgba(255,45,120,0.6);border-radius:14px;color:#fff;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-align:center;transition:all 0.2s;-webkit-appearance:none}
+.save-img-btn:active{transform:scale(0.97);background:rgba(255,45,120,0.35)}
+.save-img-btn.loading{opacity:0.6;cursor:not-allowed}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div id="page-top" class="page active">
+  <div class="hero">
+    <div class="hero-eye">BANGKOK · THONGLOR · KARAOKE & LOUNGE</div>
+    <h1 class="hero-title"><span class="t1">アーレー</span><span class="t2">JAPAN</span></h1>
+    <div class="hero-sub">THE NIGHT STARTS HERE</div>
+    <div class="promo-btn" onclick="showPage('booking')">
+      <div class="promo-label">🎤 WEB予約限定オファー</div>
+      <div class="promo-main">同伴・予約料 <em>50% OFF</em></div>
+      <div class="promo-note">タップして今すぐ予約 · Tap to reserve now</div>
+      <div class="promo-arrow">›</div>
+    </div>
+    <div class="menu-btns">
+      <div class="menu-btn staff" onclick="showPage('staff')">
+        <div class="menu-btn-icon">👗</div>
+        <div class="menu-btn-text"><div class="menu-btn-jp">スタッフ紹介</div><div class="menu-btn-sub">Staff · シフト確認もできます</div></div>
+        <div class="menu-btn-arrow">›</div>
+      </div>
+      <div class="menu-btn shift" onclick="showPage('today')">
+        <div class="menu-btn-icon">📅</div>
+        <div class="menu-btn-text"><div class="menu-btn-jp">本日の出勤</div><div class="menu-btn-sub">Tonight's Lineup</div></div>
+        <div class="menu-btn-arrow">›</div>
+      </div>
+      <div class="menu-btn rank" onclick="showPage('ranking')">
+        <div class="menu-btn-icon">🏆</div>
+        <div class="menu-btn-text"><div class="menu-btn-jp">ランキング</div><div class="menu-btn-sub">Monthly Ranking</div></div>
+        <div class="menu-btn-arrow">›</div>
+      </div>
+    </div>
+    <div class="scroll-hint"><span>SCROLL</span><div class="scroll-mouse"><div class="scroll-dot"></div></div></div>
+  </div>
+  <div class="info-strip"><strong>OPEN 18:00</strong> DAILY<br>1221/6 Sukhumvit Rd, Thonglor, Bangkok<br>📞 080 973 8787</div>
+</div>
+
+<div id="page-booking" class="page">
+  <div class="app-header"><div class="header-logo">AH-REH <span>JAPAN</span></div><div class="back-btn" onclick="showPage('top')">‹ TOP</div></div>
+  <div class="page-inner">
+    <div class="page-title-block"><div class="page-title">RESERVATION</div><div class="page-heading">予約する</div><div class="neon-line"></div></div>
+    <div style="background:linear-gradient(135deg,rgba(255,45,120,0.1),rgba(191,0,255,0.1));border:1px solid rgba(255,45,120,0.3);border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:center">
+      <div style="font-size:11px;color:var(--pink);letter-spacing:0.2em;margin-bottom:4px">🎤 WEB予約限定</div>
+      <div style="font-size:20px;font-weight:900;color:#fff">同伴・予約料 <span style="color:var(--pink)">50% OFF</span></div>
+    </div>
+    <div class="booking-form">
+      <div class="form-grid">
+        <div class="form-group"><label>お名前 / Name</label><input type="text" id="f-name" placeholder="田中 太郎" autocomplete="name"></div>
+        <div class="form-group"><label>人数 / Guests</label>
+          <select id="f-guests"><option value="">選択</option><option value="1">1名</option><option value="2">2名</option><option value="3">3名</option><option value="4">4名</option><option value="5">5名</option><option value="6+">6名以上</option></select>
+        </div>
+        <div class="form-group"><label>希望日 / Date</label><input type="date" id="f-date"></div>
+        <div class="form-group"><label>希望時間 / Time</label>
+          <select id="f-time"><option value="">選択</option><option value="18:00">18:00</option><option value="19:00">19:00</option><option value="20:00">20:00</option><option value="21:00">21:00</option><option value="22:00">22:00</option><option value="23:00">23:00</option><option value="24:00">24:00~</option></select>
+        </div>
+        <div class="form-group"><label>席タイプ / Seat</label>
+          <select id="f-seat"><option value="">選択</option><option value="カウンター">カウンター</option><option value="BOX席">BOX席</option><option value="VIP">VIP</option><option value="おまかせ">おまかせ</option></select>
+        </div>
+        <div class="form-group"><label>ボトル / Bottle</label>
+          <select id="f-bottle"><option value="">なし</option><option value="いいちこ">いいちこ</option><option value="角">サントリー角</option><option value="響">サントリー響</option><option value="JW Black">J.W. Black</option><option value="モエ">モエ シャンパン</option><option value="未定">未定・相談</option></select>
+        </div>
+        <div class="form-group full"><label>電話番号 / Phone Number ※必須</label><input type="tel" id="f-phone" placeholder="例: 0812345678" autocomplete="tel"></div>
+        <div class="form-group full"><label>指名スタッフ / Staff Request</label>
+          <select id="f-staff">
+            <option value="">指名なし / No preference</option>
+            <option>YAM</option><option>CAKE</option><option>MOMO</option><option>EMMY</option><option>ELLE</option><option>MIO</option><option>YUKI</option><option>SAKI</option><option>PAI</option><option>RUMI</option><option>HANA</option><option>HIKARU</option><option>MIRA</option><option>MINT</option><option>YAYA</option><option>NENE</option><option>YUZU</option><option>KANOM</option><option>OLI</option><option>ICE</option><option>FEW</option><option>NIKIY</option><option>UMI</option><option>YOK</option><option>MOD</option><option>AKI</option><option>MAO</option><option>HARU</option><option>SODA</option><option>MOE</option><option>WINE</option><option>SUN</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>メモ / Notes（任意）</label><textarea id="f-note" placeholder="誕生日・その他ご要望など..."></textarea></div>
+      </div>
+      <button class="btn-submit" id="btn-submit" onclick="submitBooking()">✦ 今すぐ予約する · BOOK NOW ✦</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-staff" class="page">
+  <div class="app-header"><div class="header-logo">AH-REH <span>JAPAN</span></div><div class="back-btn" id="staff-back-btn" onclick="staffBack()">‹ TOP</div></div>
+  <div class="page-inner">
+    <div id="staff-list-view">
+      <div class="page-title-block"><div class="page-title">OUR TEAM</div><div class="page-heading">スタッフ紹介</div><div class="neon-line"></div></div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:16px;text-align:center">👆 タップするとシフト確認・指名予約ができます</div>
+      <div id="staff-grid" class="staff-grid"><div class="spinner-wrap">読み込み中...</div></div>
+    </div>
+    <div id="staff-detail-view" style="display:none"><div id="staff-detail-content"></div></div>
+  </div>
+</div>
+
+<div id="page-today" class="page">
+  <div class="app-header"><div class="header-logo">AH-REH <span>JAPAN</span></div><div class="back-btn" onclick="showPage('top')">‹ TOP</div></div>
+  <div id="today-content" style="background:#04040a;min-height:100vh"><div class="spinner-wrap">読み込み中...</div></div>
+</div>
+
+<div id="page-ranking" class="page">
+  <div class="app-header"><div class="header-logo">AH-REH <span>JAPAN</span></div><div class="back-btn" onclick="showPage('top')">‹ TOP</div></div>
+  <div class="rank-bg">
+    <div class="rank-hero">
+      <span class="rank-fire">🔥</span>
+      <div class="rank-title-main">人気ランキング</div>
+      <div class="rank-title-sub">同伴 &amp; 予約 ランキング</div>
+      <div class="rank-month-badge" id="rank-month-label">読み込み中...</div>
+    </div>
+    <div id="ranking-content"><div class="spinner-wrap">読み込み中...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-title" id="toast-title"></div><div class="toast-body" id="toast-body"></div></div>
+
+<script>
+const WEB_APP='https://script.google.com/macros/s/AKfycbwarwDUGU2STLE_jNXIVHrNwA4d3rzrPIClSfBohskar5q1V6YnbutMknLchl63oSvTFA/exec';
+const TODAY=new Date();
+const CUR_Y=TODAY.getFullYear(),CUR_M=TODAY.getMonth()+1,CUR_D=TODAY.getDate();
+const LIMIT={0:10,1:10,2:15,3:15,4:15,5:20,6:20};
+const MONTHS_JP=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const ROLES={'YAM':'ママ','CAKE':'チーママ','MOMO':'チーママ','EMMY':'マネージャー'};
+let state={shift:{y:CUR_Y,m:CUR_M},rank:{y:CUR_Y,m:CUR_M},staffData:null,shiftCache:{},rankCache:{}};
+function getRole(n){return ROLES[n]||'';}
+
+// CANVAS
+const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+const COLORS=['#ff2d78','#00f5ff','#bf00ff','#ffd700'];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Particle{constructor(){this.reset(true);}reset(init){this.x=Math.random()*W;this.y=init?Math.random()*H:H+10;this.size=Math.random()*1.2+0.4;this.vy=-(Math.random()*0.3+0.1);this.vx=(Math.random()-0.5)*0.15;this.color=COLORS[Math.floor(Math.random()*4)];this.fl=Math.random()*Math.PI*2;}update(){this.x+=this.vx;this.y+=this.vy;this.fl+=0.05;if(this.y<-10)this.reset(false);}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=this.color;ctx.globalAlpha=0.3+Math.sin(this.fl)*0.2;ctx.shadowBlur=6;ctx.shadowColor=this.color;ctx.fill();}}
+for(let i=0;i<120;i++)particles.push(new Particle());
+function drawBlobs(){const t=Date.now()*0.001;[{x:W*0.2,y:H*0.3,r:200,rgb:'255,45,120'},{x:W*0.8,y:H*0.6,r:240,rgb:'191,0,255'},{x:W*0.5,y:H*0.85,r:180,rgb:'0,245,255'}].forEach((b,i)=>{const ox=Math.sin(t+i)*25,oy=Math.cos(t*0.7+i)*25;const g=ctx.createRadialGradient(b.x+ox,b.y+oy,0,b.x+ox,b.y+oy,b.r);g.addColorStop(0,`rgba(${b.rgb},0.06)`);g.addColorStop(1,`rgba(${b.rgb},0)`);ctx.beginPath();ctx.arc(b.x+ox,b.y+oy,b.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();});}
+function drawGrid(){ctx.globalAlpha=0.025;ctx.strokeStyle='#00f5ff';ctx.lineWidth=1;const sz=80,off=(Date.now()*0.02)%sz;for(let y=-sz+off;y<H+sz;y+=sz){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}for(let x=0;x<W;x+=sz){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}ctx.globalAlpha=1;}
+function animate(){ctx.clearRect(0,0,W,H);ctx.fillStyle='rgba(4,4,10,0.6)';ctx.fillRect(0,0,W,H);drawGrid();drawBlobs();ctx.shadowBlur=0;particles.forEach(p=>{p.update();p.draw();});ctx.globalAlpha=1;ctx.shadowBlur=0;requestAnimationFrame(animate);}
+animate();
+
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');window.scrollTo(0,0);if(id==='staff')loadStaff();if(id==='today')loadToday();if(id==='ranking')loadRanking();}
+function staffBack(){const lv=document.getElementById('staff-list-view'),dv=document.getElementById('staff-detail-view');if(dv.style.display!=='none'){dv.style.display='none';lv.style.display='block';document.getElementById('staff-back-btn').textContent='‹ TOP';}else{showPage('top');}}
+
+const dateInput=document.getElementById('f-date');
+const tmr=new Date();tmr.setDate(tmr.getDate()+1);dateInput.min=tmr.toISOString().split('T')[0];
+
+async function submitBooking(){
+  const name=document.getElementById('f-name').value.trim();
+  const guests=document.getElementById('f-guests').value;
+  const date=document.getElementById('f-date').value;
+  const time=document.getElementById('f-time').value;
+  const phone=document.getElementById('f-phone').value.trim();
+  if(!name||!guests||!date||!time||!phone){showToast('入力エラー','お名前・人数・日付・時間・電話番号は必須です','err');return;}
+  const btn=document.getElementById('btn-submit');btn.disabled=true;btn.textContent='送信中...';
+  const payload={action:'saveReservation',name,guests,date,time,phone,seat:document.getElementById('f-seat').value,bottle:document.getElementById('f-bottle').value,staff:document.getElementById('f-staff').value,note:document.getElementById('f-note').value.trim(),source:'LP_WEB',promo:'50OFF'};
+  try{
+    const r=await fetch(WEB_APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(d.success){showToast('予約受付完了！','確認のご連絡をお送りします','ok');['f-name','f-date','f-note','f-phone'].forEach(id=>{document.getElementById(id).value='';});['f-guests','f-time','f-seat','f-bottle','f-staff'].forEach(id=>{document.getElementById(id).value='';});}
+    else{showToast('送信エラー','もう一度お試しください','err');}
+  }catch(e){showToast('送信エラー','通信に失敗しました','err');}
+  finally{btn.disabled=false;btn.innerHTML='✦ 今すぐ予約する · BOOK NOW ✦';}
+}
+
+async function loadStaff(){
+  if(state.staffData)return renderStaffGrid(state.staffData);
+  document.getElementById('staff-grid').innerHTML='<div class="spinner-wrap">読み込み中...</div>';
+  try{
+    const r=await fetch(WEB_APP+'?action=getStaffProfiles');
+    const d=await r.json();
+    if(d.success&&d.data.length>0){state.staffData=d.data;renderStaffGrid(d.data);}
+    else document.getElementById('staff-grid').innerHTML='<div class="spinner-wrap">スタッフ情報を準備中...</div>';
+  }catch(e){document.getElementById('staff-grid').innerHTML='<div class="spinner-wrap">読み込みエラー</div>';}
+}
+function renderStaffGrid(list){
+  document.getElementById('staff-grid').innerHTML=list.map((s,i)=>{
+    const lvHtml=[s.jpLevel?`<span class="lv-badge jp">🇯🇵 ${s.jpLevel}</span>`:'',s.enLevel?`<span class="lv-badge en">🇺🇸 ${s.enLevel}</span>`:''].filter(Boolean).join('');
+    return `<div class="staff-card" onclick="showStaffDetail(${i})"><div class="staff-photo-wrap">${s.photo1?`<img src="${s.photo1}" alt="${s.name}" onerror="this.style.display='none'">`:'👤'}<div class="staff-shift-hint">📅 シフト確認</div></div><div class="staff-info"><div class="staff-name">${s.name}</div>${lvHtml?`<div class="staff-levels">${lvHtml}</div>`:''} ${getRole(s.name)?`<div class="staff-tag">${getRole(s.name)}</div>`:''}</div></div>`;
+  }).join('');
+}
+async function showStaffDetail(idx){
+  const s=state.staffData[idx];
+  document.getElementById('staff-list-view').style.display='none';
+  document.getElementById('staff-detail-view').style.display='block';
+  document.getElementById('staff-back-btn').textContent='‹ 一覧';
+  document.getElementById('staff-detail-content').innerHTML='<div class="spinner-wrap">読み込み中...</div>';
+  const sy=state.shift.y,sm=state.shift.m;
+  const shiftData=await getShiftData(sy,sm);
+  const days=(shiftData[s.name]||[]).map(Number).sort((a,b)=>a-b);
+  let chipsHtml='';
+  days.forEach(d=>{const td=(sy===CUR_Y&&sm===CUR_M&&d===CUR_D);chipsHtml+=`<div class="shift-chip-on ${td?'shift-chip-today':''}">${d}</div>`;});
+  const lvHtml=[s.jpLevel?`<span class="staff-detail-lv jp">🇯🇵 日本語 ${s.jpLevel}</span>`:'',s.enLevel?`<span class="staff-detail-lv en">🇺🇸 English ${s.enLevel}</span>`:''].filter(Boolean).join('');
+  document.getElementById('staff-detail-content').innerHTML=`${s.photo1?`<img class="staff-detail-photo" src="${s.photo1}" alt="${s.name}" onerror="this.style.display='none'">`:''}
+<div class="staff-detail-name">${s.name}</div>${getRole(s.name)?`<div style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;font-weight:700;color:var(--gold);margin-bottom:12px">${getRole(s.name)}</div>`:''}${lvHtml?`<div class="staff-detail-levels">${lvHtml}</div>`:''}
+<div class="shift-month-label-staff">📅 ${MONTHS_JP[sm-1]} 出勤予定（${days.length}日）</div>
+${days.length>0?`<div class="shift-chips-on">${chipsHtml}</div>`:`<div class="no-shift-msg">今月の出勤予定はまだ登録されていません</div>`}
+<button class="staff-book-btn" onclick="bookWithStaff('${s.name}')">✦ ${s.name}を指名して予約する</button>`;
+}
+function bookWithStaff(name){showPage('booking');setTimeout(()=>{const sel=document.getElementById('f-staff');if(sel)for(let i=0;i<sel.options.length;i++)if(sel.options[i].value===name||sel.options[i].text===name){sel.selectedIndex=i;break;}},100);}
+
+async function getShiftData(y,m){
+  const key=y+'-'+m;
+  if(state.shiftCache[key])return state.shiftCache[key];
+  try{const r=await fetch(WEB_APP+'?action=getShift&year='+y+'&month='+m);const d=await r.json();if(d.success){state.shiftCache[key]=d.data;return d.data;}}catch(e){}
+  return {};
+}
+
+function goBooking(){showPage('booking');}
+function goStaff(name){goToStaffFromToday(name);}
+
+async function loadToday(){
+  document.getElementById('today-content').innerHTML='<div class="spinner-wrap">読み込み中...</div>';
+  try{
+    const r=await fetch(WEB_APP+'?action=getTodayLineup');
+    const d=await r.json();
+    if(d.staffProfiles&&d.staffProfiles.length>0)state.staffData=d.staffProfiles;
+    if(d.success&&d.data.length>0)renderToday(d.data,d.date,d.total);
+    else document.getElementById('today-content').innerHTML='<div class="spinner-wrap">本日のシフトはまだ登録されていません</div>';
+  }catch(e){document.getElementById('today-content').innerHTML='<div class="spinner-wrap">読み込みエラー</div>';}
+}
+
+// ★ 画像保存（インスタストーリーサイズ 1080×1920）
+async function saveTodayImage(pi){
+  const btn=document.getElementById('save-btn-'+pi);
+  if(!btn)return;
+  btn.classList.add('loading');
+  btn.textContent='⏳ 生成中...';
+  const target=document.getElementById('today-page-'+pi);
+  if(!target){btn.classList.remove('loading');btn.textContent='📸 画像保存';return;}
+  try{
+    const cv=await html2canvas(target,{backgroundColor:'#04040a',scale:2,useCORS:true,allowTaint:true,logging:false});
+    const STORY_W=1080,STORY_H=1920;
+    const sc=document.createElement('canvas');
+    sc.width=STORY_W;sc.height=STORY_H;
+    const sctx=sc.getContext('2d');
+    sctx.fillStyle='#04040a';
+    sctx.fillRect(0,0,STORY_W,STORY_H);
+    const scale=Math.min(STORY_W/cv.width,STORY_H/cv.height);
+    const dw=cv.width*scale,dh=cv.height*scale;
+    const dx=(STORY_W-dw)/2,dy=(STORY_H-dh)/2;
+    sctx.drawImage(cv,dx,dy,dw,dh);
+    const link=document.createElement('a');
+    link.download='ahrey_'+pi+'_'+new Date().toISOString().slice(0,10)+'.png';
+    link.href=sc.toDataURL('image/png');
+    link.click();
+    btn.textContent='✅ 保存完了！';
+    setTimeout(()=>{btn.classList.remove('loading');btn.textContent='📸 画像保存（インスタ用）';},2000);
+  }catch(e){
+    btn.classList.remove('loading');
+    btn.textContent='❌ 再試行';
+    console.error(e);
+  }
+}
+
+function renderToday(list,date,total){
+  const ROLE_STAFF=['YAM','CAKE','MOMO','EMMY'];
+  const filtered=list.filter(s=>ROLE_STAFF.indexOf(s.name)<0);
+  const pageSize=9;
+  const pages=[];
+  for(let i=0;i<filtered.length;i+=pageSize)pages.push(filtered.slice(i,i+pageSize));
+  const realTotal=filtered.length;
+
+  const divider='<div style="background:#04040a;padding:16px 14px;display:flex;align-items:center;gap:10px"><div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.35))"></div><div style="font-size:10px;color:rgba(255,215,0,0.5);white-space:nowrap">ここから次の画像をスクショ</div><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.35),transparent)"></div></div>';
+
+  let html='';
+  for(let pi=0;pi<pages.length;pi++){
+    if(pi>0)html+=divider;
+
+    // ★ 各ページをid付きdivで囲む（画像キャプチャ対象）
+    html+='<div id="today-page-'+pi+'" style="background:#04040a">';
+    html+='<div style="width:100%;background:#04040a;padding:52px 14px 0;box-sizing:border-box">';
+    html+='<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(255,215,0,0.2);margin-bottom:16px"><div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:0.15em">アーレー<span style="color:#ff2d78">JAPAN</span></div></div>';
+    html+='<div style="display:flex;align-items:baseline;justify-content:center;gap:14px;margin-bottom:14px"><div style="font-size:22px;font-weight:900;color:#fff">'+date+'</div><div style="font-size:18px;color:rgba(255,255,255,0.2)">|</div><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.6)">本日の出勤</div><div style="font-size:30px;font-weight:900;color:#ff2d78;line-height:1">'+realTotal+'</div><div style="font-size:14px;color:rgba(255,255,255,0.5)">名</div></div>';
+    html+='<div style="margin:0 0 16px;padding:10px 14px;background:linear-gradient(135deg,rgba(255,45,120,0.22),rgba(191,0,255,0.22));border:1.5px solid rgba(255,45,120,0.55);border-radius:12px;text-align:center;cursor:pointer" onclick="goBooking()"><div style="font-size:9px;color:#ff2d78;letter-spacing:0.2em;margin-bottom:3px">🎤 WEB予約限定オファー</div><div style="font-size:16px;font-weight:900;color:#fff">同伴・予約料 <span style="color:#ff2d78">50% OFF</span></div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:3px">タップして今すぐ予約</div></div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px 22px">';
+
+    const pg=pages[pi];
+    for(let si=0;si<pg.length;si++){
+      const s=pg[si];
+      const photo=s.photo||'';
+      html+='<div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" data-name="'+s.name+'" onclick="goStaff(this.dataset.name)">';
+      html+='<div style="width:108px;height:108px;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,45,120,0.75);box-shadow:0 0 14px rgba(255,45,120,0.4);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05)">';
+      html+=photo?'<img src="'+photo+'" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display=\'none\'">':'<span style="font-size:28px;color:rgba(255,255,255,0.3)">👤</span>';
+      html+='</div>';
+      html+='<div style="font-size:13px;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.8);text-align:center">'+s.name+'</div>';
+      html+='</div>';
+    }
+
+    html+='</div></div>'; // grid + padding div
+    html+='<div style="background:#04040a;padding:8px 16px 12px;display:flex;justify-content:space-between;border-top:0.5px solid rgba(255,255,255,0.07)"><div style="font-size:9px;color:rgba(255,255,255,0.3)">OPEN 18:00 · Thonglor BKK</div><div style="font-size:9px;color:rgba(255,255,255,0.3)">'+(pi===pages.length-1?'080 973 8787':'続きは次の画像')+'</div></div>';
+    html+='</div>'; // today-page-N 閉じ
+
+    // ★ 画像保存ボタン
+    html+='<div style="background:#04040a;padding:0 14px 24px"><button id="save-btn-'+pi+'" class="save-img-btn" onclick="saveTodayImage('+pi+')">📸 画像保存（インスタ用）</button></div>';
+  }
+  document.getElementById('today-content').innerHTML=html;
+}
+
+async function goToStaffFromToday(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-staff').classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('staff-list-view').style.display='none';
+  document.getElementById('staff-detail-view').style.display='block';
+  document.getElementById('staff-back-btn').textContent='‹ 一覧';
+  document.getElementById('staff-detail-content').innerHTML='<div class="spinner-wrap">読み込み中...</div>';
+  if(!state.staffData){try{const r=await fetch(WEB_APP+'?action=getStaffProfiles');const d=await r.json();if(d.success&&d.data.length>0)state.staffData=d.data;}catch(e){}}
+  let s=null;
+  if(state.staffData)for(let i=0;i<state.staffData.length;i++)if(state.staffData[i].name===name){s=state.staffData[i];break;}
+  if(!s){document.getElementById('staff-detail-content').innerHTML='<div class="spinner-wrap">データなし</div>';return;}
+  const sy=state.shift.y,sm=state.shift.m;
+  const shiftData=await getShiftData(sy,sm);
+  const days=(shiftData[s.name]||[]).map(Number).sort((a,b)=>a-b);
+  let chipsHtml='';
+  for(let i=0;i<days.length;i++){const td=(sy===CUR_Y&&sm===CUR_M&&days[i]===CUR_D);chipsHtml+='<div class="shift-chip-on'+(td?' shift-chip-today':'')+'">'+days[i]+'</div>';}
+  const photo=s.photo1||s.photo||'';
+  let lvHtml='';
+  if(s.jpLevel)lvHtml+='<span class="staff-detail-lv jp">🇯🇵 日本語 '+s.jpLevel+'</span>';
+  if(s.enLevel)lvHtml+='<span class="staff-detail-lv en">🇺🇸 English '+s.enLevel+'</span>';
+  const role=getRole(s.name);
+  let html='';
+  if(photo)html+='<img class="staff-detail-photo" src="'+photo+'" alt="'+s.name+'" onerror="this.style.display=\'none\'">';
+  html+='<div class="staff-detail-name">'+s.name+'</div>';
+  if(role)html+='<div style="font-size:15px;font-weight:700;color:var(--gold);margin-bottom:12px">'+role+'</div>';
+  if(lvHtml)html+='<div class="staff-detail-levels">'+lvHtml+'</div>';
+  html+='<div class="shift-month-label-staff">📅 '+MONTHS_JP[sm-1]+' 出勤予定（'+days.length+'日）</div>';
+  if(days.length>0)html+='<div class="shift-chips-on">'+chipsHtml+'</div>';
+  else html+='<div class="no-shift-msg">今月の出勤予定はまだ登録されていません</div>';
+  html+='<button class="staff-book-btn" data-name="'+s.name+'" onclick="bookWithStaff(this.dataset.name)">✦ '+s.name+'を指名して予約する</button>';
+  document.getElementById('staff-detail-content').innerHTML=html;
+}
+
+async function loadRanking(){
+  if(!state.staffData){try{const r=await fetch(WEB_APP+'?action=getStaffProfiles');const d=await r.json();if(d.success&&d.data.length>0)state.staffData=d.data;}catch(e){}}
+  const{y,m}=state.rank;
+  document.getElementById('rank-month-label').textContent=MONTHS_JP[m-1]+' '+y+' 人気ランキング';
+  const key=y+'-'+m;
+  if(state.rankCache[key]){renderRanking(state.rankCache[key]);return;}
+  document.getElementById('ranking-content').innerHTML='<div class="spinner-wrap">読み込み中...</div>';
+  try{
+    const r=await fetch(WEB_APP+'?action=getRanking&year='+y+'&month='+m);
+    const d=await r.json();
+    if(d.success&&d.data){state.rankCache[key]=d.data;renderRanking(d.data);}
+    else document.getElementById('ranking-content').innerHTML='<div class="spinner-wrap">データなし</div>';
+  }catch(e){document.getElementById('ranking-content').innerHTML='<div class="spinner-wrap">読み込みエラー</div>';}
+}
+function renderRanking(list){
+  const sorted=[...list].sort((a,b)=>b.score-a.score||a.lateCount-b.lateCount).slice(0,10);
+  if(sorted.length===0){document.getElementById('ranking-content').innerHTML='<div class="spinner-wrap">データなし</div>';return;}
+  const photoMap={};
+  if(state.staffData)state.staffData.forEach(s=>{photoMap[s.name]=s.photo1||'';});
+  const rankEmoji=['👑','🥈','🥉'],rankClass=['rank1','rank2','rank3'];
+  const rankColors=['var(--gold)','#c0c0c0','#cd7f32'];
+  const borderColors=['rgba(255,215,0,0.6)','rgba(192,192,192,0.5)','rgba(205,127,50,0.5)'];
+  let top3Html='<div class="top3-wrap">';
+  sorted.slice(0,3).forEach((r,i)=>{
+    const photo=photoMap[r.staffName]||'';
+    const sz=i===0?72:60;
+    const photoHtml=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:50%" onerror="this.parentElement.innerHTML='👤'">`:`<span style="font-size:${i===0?24:20}px">👤</span>`;
+    top3Html+=`<div class="top3-card ${rankClass[i]}"><div class="top3-shine"></div><div class="top3-inner"><div style="position:relative;flex-shrink:0;margin-top:16px"><div style="width:${sz}px;height:${sz}px;border-radius:50%;overflow:hidden;border:2px solid ${borderColors[i]};display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05)">${photoHtml}</div><div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:16px">${rankEmoji[i]}</div></div><div style="flex:1;padding-left:4px"><div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:0.2em;color:${rankColors[i]};margin-bottom:4px">${i+1}位</div><div class="top3-name">${r.staffName}</div>${getRole(r.staffName)?`<div style="font-size:11px;font-weight:700;color:var(--gold);margin-top:2px">${getRole(r.staffName)}</div>`:''}</div><div class="top3-score-wrap"><div class="top3-score">${r.score.toFixed(1)}</div><div class="top3-score-lbl">pt</div></div></div></div>`;
+  });
+  top3Html+='</div>';
+  const maxScore=sorted[0].score||1;
+  let restHtml=`<div class="rank-rest-title">— 4位〜10位 —</div><div class="rank-rest-list">`;
+  sorted.slice(3).forEach((r,i)=>{
+    const photo=photoMap[r.staffName]||'';
+    const barW=Math.round(r.score/maxScore*100);
+    const photoHtml=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:50%" onerror="this.parentElement.innerHTML='👤'">`:`<span style="font-size:13px">👤</span>`;
+    restHtml+=`<div class="rank-rest-row"><div class="rank-rest-bar" style="width:${barW}%;background:linear-gradient(90deg,var(--pink),transparent)"></div><div class="rank-rest-num">${i+4}</div><div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);position:relative">${photoHtml}</div><div class="rank-rest-name">${r.staffName}</div><div class="rank-rest-right"><div class="rank-rest-score">${r.score.toFixed(1)}</div><div class="rank-rest-pt">pt</div></div></div>`;
+  });
+  restHtml+='</div>';
+  document.getElementById('ranking-content').innerHTML=top3Html+(sorted.length>3?restHtml:'')+'<div style="height:40px"></div>';
+}
+
+function showToast(title,body,type='ok'){const t=document.getElementById('toast');t.className='toast'+(type==='err'?' error':'');document.getElementById('toast-title').textContent=title;document.getElementById('toast-body').textContent=body;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+</script>
+</body>
+</html>
