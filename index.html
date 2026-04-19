@@ -53,11 +53,11 @@ html,body{background:var(--dark);color:var(--text);font-family:'Zen Kaku Gothic 
 .spinner-wrap{display:flex;align-items:center;justify-content:center;padding:60px;flex-direction:column;gap:12px;color:var(--dim);font-size:13px}
 .spinner-wrap::before{content:'';width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,245,255,0.2);border-top-color:var(--cyan);animation:spin 0.8s linear infinite;display:block}
 .booking-form{background:rgba(255,255,255,0.05);border:1px solid rgba(0,245,255,0.15);border-radius:20px;padding:24px 20px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.form-group{display:flex;flex-direction:column;gap:6px}
+.form-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:8px}
 .form-group.full{grid-column:1/-1}
-label{font-size:10px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase}
-input,select,textarea{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 14px;color:#fff;font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;width:100%}
+label{font-size:14px;letter-spacing:0.1em;color:var(--text);font-weight:700;text-transform:none}
+input,select,textarea{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:16px 18px;color:#fff;font-family:'Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;width:100%}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238888aa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:rgba(255,255,255,0.06);padding-right:36px;cursor:pointer}
 select option{background:#0d0d24;color:#e8e8ff}
 textarea{resize:none;height:72px}
