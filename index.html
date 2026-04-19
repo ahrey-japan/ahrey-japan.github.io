@@ -448,14 +448,11 @@ function renderToday(list,date,total){
     html+='<div style="display:flex;align-items:baseline;justify-content:center;gap:14px;margin-bottom:14px"><div style="font-size:22px;font-weight:900;color:#fff">'+date+'</div><div style="font-size:18px;color:rgba(255,255,255,0.2)">|</div><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.6)">本日の出勤</div><div style="font-size:30px;font-weight:900;color:#ff2d78;line-height:1">'+realTotal+'</div><div style="font-size:14px;color:rgba(255,255,255,0.5)">名</div></div>';
     html+='<div style="margin:0 0 16px;padding:10px 14px;background:linear-gradient(135deg,rgba(255,45,120,0.22),rgba(191,0,255,0.22));border:1.5px solid rgba(255,45,120,0.55);border-radius:12px;text-align:center;cursor:pointer" onclick="goBooking()"><div style="font-size:9px;color:#ff2d78;letter-spacing:0.2em;margin-bottom:3px">🎤 WEB予約限定オファー</div><div style="font-size:16px;font-weight:900;color:#fff">同伴・予約料 <span style="color:#ff2d78">50% OFF</span></div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:3px">タップして今すぐ予約</div></div>';
 
-    // ★ 1ページ目のみ役職者を上部に表示
+    // ★ 1ページ目のみ役職者を上部に表示（区切りなし・同じデザイン）
     if(pi===0&&roleList.length>0){
-      html+='<div style="font-size:11px;color:#ffd700;letter-spacing:0.3em;text-align:center;margin-bottom:10px">★ MANAGEMENT</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat('+Math.min(roleList.length,4)+',1fr);gap:12px;padding:0 4px 16px">';
-      roleList.forEach(s=>{html+=staffChip(s,true);});
+      html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px 0">';
+      roleList.forEach(s=>{html+=staffChip(s,false);});
       html+='</div>';
-      html+='<div style="border-top:1px solid rgba(255,215,0,0.2);margin:0 4px 14px"></div>';
-      html+='<div style="font-size:11px;color:#00f5ff;letter-spacing:0.3em;text-align:center;margin-bottom:10px">✦ STAFF</div>';
     }
 
     // スタッフグリッド
