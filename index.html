@@ -413,44 +413,59 @@ async function saveTodayImage(pi){
 }
 
 function renderToday(list,date,total){
+  const ROLE_NAMES={'YAM':'ママ','CAKE':'チーママ','MOMO':'チーママ','EMMY':'マネージャー'};
   const ROLE_STAFF=['YAM','CAKE','MOMO','EMMY'];
+  const roleList=list.filter(s=>ROLE_STAFF.indexOf(s.name)>=0);
   const filtered=list.filter(s=>ROLE_STAFF.indexOf(s.name)<0);
   const pageSize=9;
   const pages=[];
   for(let i=0;i<filtered.length;i+=pageSize)pages.push(filtered.slice(i,i+pageSize));
-  const realTotal=filtered.length;
+  const realTotal=list.length;
 
   const divider='<div style="background:#04040a;padding:16px 14px;display:flex;align-items:center;gap:10px"><div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.35))"></div><div style="font-size:10px;color:rgba(255,215,0,0.5);white-space:nowrap">ここから次の画像をスクショ</div><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.35),transparent)"></div></div>';
+
+  function staffChip(s, isRole){
+    const photo=s.photo||'';
+    const border=isRole?'2.5px solid rgba(255,215,0,0.8)':'2.5px solid rgba(255,45,120,0.75)';
+    const shadow=isRole?'0 0 14px rgba(255,215,0,0.4)':'0 0 14px rgba(255,45,120,0.4)';
+    const size=isRole?'90px':'108px';
+    let chip='<div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer" data-name="'+s.name+'" onclick="goStaff(this.dataset.name)">';
+    chip+='<div style="width:'+size+';height:'+size+';border-radius:50%;overflow:hidden;border:'+border+';box-shadow:'+shadow+';display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05)">';
+    chip+=photo?'<img src="'+photo+'" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display=\'none\'">':'<span style="font-size:24px;color:rgba(255,255,255,0.3)">👤</span>';
+    chip+='</div>';
+    chip+='<div style="font-size:13px;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.8);text-align:center">'+s.name+'</div>';
+    if(isRole&&ROLE_NAMES[s.name])chip+='<div style="font-size:10px;color:rgba(255,215,0,0.6);text-align:center">'+ROLE_NAMES[s.name]+'</div>';
+    chip+='</div>';
+    return chip;
+  }
 
   let html='';
   for(let pi=0;pi<pages.length;pi++){
     if(pi>0)html+=divider;
-
-    // ★ 各ページをid付きdivで囲む（画像キャプチャ対象）
     html+='<div id="today-page-'+pi+'" style="background:#04040a">';
     html+='<div style="width:100%;background:#04040a;padding:52px 14px 0;box-sizing:border-box">';
     html+='<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(255,215,0,0.2);margin-bottom:16px"><div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:0.15em">アーレー<span style="color:#ff2d78">JAPAN</span></div></div>';
     html+='<div style="display:flex;align-items:baseline;justify-content:center;gap:14px;margin-bottom:14px"><div style="font-size:22px;font-weight:900;color:#fff">'+date+'</div><div style="font-size:18px;color:rgba(255,255,255,0.2)">|</div><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.6)">本日の出勤</div><div style="font-size:30px;font-weight:900;color:#ff2d78;line-height:1">'+realTotal+'</div><div style="font-size:14px;color:rgba(255,255,255,0.5)">名</div></div>';
     html+='<div style="margin:0 0 16px;padding:10px 14px;background:linear-gradient(135deg,rgba(255,45,120,0.22),rgba(191,0,255,0.22));border:1.5px solid rgba(255,45,120,0.55);border-radius:12px;text-align:center;cursor:pointer" onclick="goBooking()"><div style="font-size:9px;color:#ff2d78;letter-spacing:0.2em;margin-bottom:3px">🎤 WEB予約限定オファー</div><div style="font-size:16px;font-weight:900;color:#fff">同伴・予約料 <span style="color:#ff2d78">50% OFF</span></div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:3px">タップして今すぐ予約</div></div>';
-    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px 22px">';
 
-    const pg=pages[pi];
-    for(let si=0;si<pg.length;si++){
-      const s=pg[si];
-      const photo=s.photo||'';
-      html+='<div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" data-name="'+s.name+'" onclick="goStaff(this.dataset.name)">';
-      html+='<div style="width:108px;height:108px;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,45,120,0.75);box-shadow:0 0 14px rgba(255,45,120,0.4);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05)">';
-      html+=photo?'<img src="'+photo+'" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display=\'none\'">':'<span style="font-size:28px;color:rgba(255,255,255,0.3)">👤</span>';
+    // ★ 1ページ目のみ役職者を上部に表示
+    if(pi===0&&roleList.length>0){
+      html+='<div style="font-size:11px;color:#ffd700;letter-spacing:0.3em;text-align:center;margin-bottom:10px">★ MANAGEMENT</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat('+Math.min(roleList.length,4)+',1fr);gap:12px;padding:0 4px 16px">';
+      roleList.forEach(s=>{html+=staffChip(s,true);});
       html+='</div>';
-      html+='<div style="font-size:13px;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.8);text-align:center">'+s.name+'</div>';
-      html+='</div>';
+      html+='<div style="border-top:1px solid rgba(255,215,0,0.2);margin:0 4px 14px"></div>';
+      html+='<div style="font-size:11px;color:#00f5ff;letter-spacing:0.3em;text-align:center;margin-bottom:10px">✦ STAFF</div>';
     }
 
-    html+='</div></div>'; // grid + padding div
-    html+='<div style="background:#04040a;padding:8px 16px 12px;display:flex;justify-content:space-between;border-top:0.5px solid rgba(255,255,255,0.07)"><div style="font-size:9px;color:rgba(255,255,255,0.3)">OPEN 18:00 · Thonglor BKK</div><div style="font-size:9px;color:rgba(255,255,255,0.3)">'+(pi===pages.length-1?'080 973 8787':'続きは次の画像')+'</div></div>';
-    html+='</div>'; // today-page-N 閉じ
+    // スタッフグリッド
+    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px 22px">';
+    const pg=pages[pi];
+    for(let si=0;si<pg.length;si++){html+=staffChip(pg[si],false);}
+    html+='</div></div>';
 
-    // ★ 画像保存ボタン
+    html+='<div style="background:#04040a;padding:8px 16px 12px;display:flex;justify-content:space-between;border-top:0.5px solid rgba(255,255,255,0.07)"><div style="font-size:9px;color:rgba(255,255,255,0.3)">OPEN 18:00 · Thonglor BKK</div><div style="font-size:9px;color:rgba(255,255,255,0.3)">'+(pi===pages.length-1?'080 973 8787':'続きは次の画像')+'</div></div>';
+    html+='</div>';
     html+='<div style="background:#04040a;padding:0 14px 24px"><button id="save-btn-'+pi+'" class="save-img-btn" onclick="saveTodayImage('+pi+')">📸 画像保存（インスタ用）</button></div>';
   }
   document.getElementById('today-content').innerHTML=html;
